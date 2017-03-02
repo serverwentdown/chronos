@@ -1,0 +1,1 @@
+{"rules": {"indent": ["error", "tab"], "no-tabs": "off", "react/jsx-indent": ["error", "tab"]}, "extends": "airbnb", "env": {"browser": true, "node": true}}

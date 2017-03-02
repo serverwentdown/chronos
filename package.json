@@ -1,0 +1,42 @@
+{
+  "name": "Chronos",
+  "version": "0.1.0",
+  "description": "A school event planner and timetable",
+  "scripts": {
+    "start": "node dist/server/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ambrosechua/chronos.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "proprietary",
+  "bugs": {
+    "url": "https://github.com/ambrosechua/chronos/issues"
+  },
+  "homepage": "https://github.com/ambrosechua/chronos#readme",
+  "devDependencies": {
+    "babel-loader": "^6.3.2",
+    "babel-preset-env": "^1.1.10",
+    "babel-preset-react": "^6.23.0",
+    "eslint": "^3.16.1",
+    "eslint-config-airbnb": "^14.1.0",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-jsx-a11y": "^4.0.0",
+    "eslint-plugin-react": "^6.10.0",
+    "grunt": "^1.0.1",
+    "grunt-babel": "^6.0.0",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-eslint": "^19.0.0",
+    "grunt-webpack": "^2.0.1",
+    "webpack": "^2.2.1"
+  },
+  "dependencies": {
+    "express": "^4.14.1",
+    "mysql": "^2.13.0",
+    "react": "^15.4.2",
+    "react-dom": "^15.4.2"
+  }
+}
