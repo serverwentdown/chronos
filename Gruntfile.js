@@ -9,6 +9,9 @@ module.exports = function (grunt) {
 					filename: 'bundle.js',
 					path: './dist/app/'
 				},
+				resolve: {
+					extensions: ['.js', '.jsx'],
+				},
 				module: {
 					loaders: [
 						{
@@ -38,6 +41,12 @@ module.exports = function (grunt) {
 						cwd: './app/',
 						src: ['assets/**'],
 						dest: './dist/app/assets/'
+					},
+					{
+						expand: true,
+						cwd: './node_modules/bootstrap/',
+						src: ['dist/**'],
+						dest: './dist/app/assets/bootstrap/'
 					}
 				]
 			}
@@ -58,15 +67,33 @@ module.exports = function (grunt) {
 					{
 						expand: true,
 						cwd: './server/',
-						src: ['*.js'],
+						src: ['**/*.js'],
 						dest: './dist/server/'
 					}
 				]
 			}
 		},
 		eslint: {
-			app: ['./app/*.js*'],
-			server: ['./server/*.js']
+			app: {
+				files: [
+					{
+						expand: true,
+						cwd: './app/',
+						src: ['**/*.js*'],
+						dest: './dist/app/'
+					}
+				]
+			},
+			server: {
+				files: [
+					{
+						expand: true,
+						cwd: './server/',
+						src: ['**/*.js'],
+						dest: './dist/server/'
+					}
+				]
+			}
 		}
 	});
 

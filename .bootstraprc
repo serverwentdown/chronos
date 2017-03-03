@@ -1,0 +1,5 @@
+{
+	"bootstrapVersion": 4,
+	"useFlexbox": true,
+	"preBootstrapCustomizations": "app/assets/_bs-variables.scss"
+}
