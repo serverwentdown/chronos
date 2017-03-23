@@ -47,6 +47,12 @@ module.exports = function (grunt) {
 						cwd: './node_modules/bootstrap/',
 						src: ['dist/**'],
 						dest: './dist/app/assets/bootstrap/'
+					},
+					{
+						expand: true,
+						cwd: './node_modules/oidc-client/',
+						src: ['dist/**'],
+						dest: './dist/app/assets/oidc-client/'
 					}
 				]
 			}

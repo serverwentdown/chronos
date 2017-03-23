@@ -1,0 +1,11 @@
+# Common files
+.DS_Store
+node_modules/
+npm-debug.log
+
+# Build products
+dist/
+
+# Temporary files
+oid_settings.json
+nginx.conf

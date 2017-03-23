@@ -37,6 +37,7 @@
     "bootstrap": "^4.0.0-alpha.6",
     "express": "^4.14.1",
     "mysql": "^2.13.0",
+    "oidc-client": "^1.3.0-beta.3",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
     "react-router-dom": "^4.0.0-beta.6",

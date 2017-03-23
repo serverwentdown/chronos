@@ -9,7 +9,7 @@ export default class PageLogin extends React.Component {
 		return (
 			<Container>
 				<Button>
-					Login
+					Login with Office365
 				</Button>
 			</Container>
 		);

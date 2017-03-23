@@ -1,6 +1,7 @@
 import mysql from 'mysql';
 import semver from 'semver';
 import { fatal, getVersion } from './utils';
+import { NotFoundError } from './errors';
 
 const DATABASE = 'chronos';
 
@@ -12,12 +13,63 @@ export default class Database {
 		this.checkAndMigrate();
 	}
 
-	query(query, values) {
+	async getSchools() {
+		return this.query(`
+			SELECT id, name, domain
+			FROM school
+		`);
+	}
+	async getSchool(id) {
+		return this.query(`
+			SELECT *
+			FROM auth RIGHT JOIN school
+			ON auth.school = school.id
+			WHERE school.${isNaN(parseInt(id, 10)) ? 'domain' : 'id'}  = ?
+		`, [id], {
+			required: true,
+		})
+		.then(results => ({
+			id: results[0].id,
+			name: results[0].name,
+			domain: results[0].domain,
+			auth: results.map(r => Object.assign(r, {
+				school: undefined,
+				name: undefined,
+				domain: undefined,
+				oid_csecret: undefined,
+			})),
+		}))
+		.catch(err => err.withNoun('School'));
+	}
+
+	// eslint-disable-next-line class-methods-use-this
+	async getUsers(school) {
+		return this.query(`
+			SELECT id, name
+			FROM user
+			WHERE user.school = ?
+		`, [school]);
+	}
+	async getUser(school, id) {
+		return this.query(`
+			SELECT id, name, email, role
+			FROM user
+			WHERE user.school = ?
+			AND user.id = ?
+		`, [school, id], {
+			required: true,
+		})
+		.catch(err => err.withNoun('User'));
+	}
+
+	query(query, values, options = {}) {
 		console.log('QUERY:', query.replace(/[\n\t]+/g, ' ').replace(/^ /g, '').replace(/ $/g, ''));
 		return new Promise((resolve, reject) => {
 			this.connection.query(query, values, (err, results, fields) => {
 				if (err) {
 					reject(err);
+				} else if (options.required === true && results.length < 1) {
+					reject(new NotFoundError());
 				}
 				resolve(results, fields);
 			});
@@ -40,7 +92,7 @@ export default class Database {
 		} else if (semver.satisfies(oldVersion, '~0')) { // lmao forces database migration
 			// database needs to be updated
 			return this.query(`DROP DATABASE ${DATABASE}`)
-				.then(() => this.checkAndMigrate());
+			.then(() => this.checkAndMigrate());
 		}
 		// database does not exist
 
@@ -100,7 +152,7 @@ export default class Database {
 			`CREATE TABLE group_mentor (
 				id			INT	NOT NULL,
 				level		TINYINT NOT NULL,
-				year		YEAR NOT NULL,
+				year		YEAR(4) NOT NULL,
 				PRIMARY KEY (id),
 				FOREIGN KEY (id) REFERENCES group_(id) ON DELETE CASCADE ON UPDATE CASCADE
 			)`,
@@ -153,11 +205,20 @@ export default class Database {
 			VALUES ('version', '${getVersion()}')
 		`);
 
+		// TODO: Build admin interface to add schools
 		// add first school
-		await this.query(`
+		const firstSchool = await this.query(`
 			INSERT INTO school (name, domain)
 			VALUES (?, ?)
 		`, ['NUS High School', 'nushigh.edu.sg']);
+
+		// eslint-disable-next-line global-require
+		const fs = require('fs');
+		const tmpsettings = JSON.parse(fs.readFileSync('oid_settings.json', 'utf8'));
+		await this.query(`
+			INSERT INTO auth (school, type, oid_meta, oid_cid, oid_csecret)
+			VALUES (?, ?, ?, ?, ?)
+		`, [firstSchool.insertId, 'OID', tmpsettings.oid_meta, tmpsettings.oid_cid, tmpsettings.oid_csecret]);
 
 		return true;
 	}
