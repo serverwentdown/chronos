@@ -22,7 +22,15 @@ module.exports = function (grunt) {
 									loader: 'babel-loader',
 									options: {
 										sourceMap: true,
-										presets: ['env', 'react']
+										presets: [
+											['env', {
+												targets: {
+													browsers: ['last 2 versions']
+												},
+												modules: false
+											}],
+											'react'
+										]
 									}
 								}
 							]
@@ -34,22 +42,14 @@ module.exports = function (grunt) {
 								{
 									loader: 'css-loader',
 									options: {
+										sourceMap: true,
 										modules: true,
-										importLoaders: 1
+										importLoaders: 1,
+										localIdentName: '[name]--[local]--[hash:base64:8]'
 									}
 								},
 								{
-									loader: 'postcss-loader',
-									options: {
-										plugins: {
-											'postcss-import': {
-												root: __dirname,
-											},
-											'postcss-mixins': {},
-											'postcss-each': {},
-											'postcss-cssnext': {}
-										}
-									}
+									loader: 'postcss-loader'
 								}
 							]
 						}
@@ -88,7 +88,8 @@ module.exports = function (grunt) {
 					['env', {
 						targets: {
 							node: 'current'
-						}
+						},
+						modules: 'commonjs'
 					}]
 				]
 			},
@@ -124,6 +125,22 @@ module.exports = function (grunt) {
 					}
 				]
 			}
+		},
+		watch: {
+			app: {
+				files: '**/*.js*',
+				tasks: ['app'],
+				options: {
+					cwd: __dirname + '/app/'
+				}
+			},
+			server: {
+				files: '**/*.js',
+				tasks: ['server'],
+				options: {
+					cwd: __dirname + '/server/'
+				}
+			}
 		}
 	});
 
@@ -131,8 +148,11 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-babel');
 	grunt.loadNpmTasks('grunt-eslint');
 	grunt.loadNpmTasks('grunt-contrib-copy');
+	grunt.loadNpmTasks('grunt-contrib-watch');
 
 	grunt.registerTask('all', ['eslint', 'webpack', 'copy', 'babel']);
+	grunt.registerTask('app', ['eslint:app', 'webpack:app', 'copy:app']);
+	grunt.registerTask('server', ['eslint:server', 'babel:server']);
 	grunt.registerTask('default', ['all']);
 
 };
