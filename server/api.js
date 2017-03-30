@@ -1,5 +1,6 @@
+import { get } from 'https';
 import Router from 'express';
-import { WebError, UnauthenticatedError } from './errors';
+import { WebError, UnauthenticatedError, NotFoundError } from './errors';
 
 export default class API {
 	constructor(database) {
@@ -23,13 +24,30 @@ export default class API {
 			this.database.getSchools()
 			.then((data) => {
 				res.json(data);
-			}).catch(next);
+			})
+			.catch(next);
 		});
 		this.router.get('/schools/:school', (req, res, next) => {
-			this.database.getSchool(req.params.school)
+			this.database.getSchoolWithAuth(req.params.school)
 			.then((data) => {
-				res.json(data);
-			}).catch(next);
+				res.json(Object.assign(data, {
+					auth: data.auth.map(a => Object.assign(a, { oid_csecret: undefined })),
+				}));
+			})
+			.catch(next);
+		});
+		this.router.get('/schools/:school/oid/.well-known/openid-configuration', (req, res, next) => {
+			this.database.getSchoolWithAuth(req.params.school)
+			.then((data) => {
+				// assume auth[0] exists
+				const url = data.auth[0].oid_meta;
+				if (url) {
+					get(url, (d) => {
+						d.pipe(res);
+					});
+				}
+			})
+			.catch(next);
 		});
 
 		// Users
@@ -42,11 +60,16 @@ export default class API {
 		this.router.get('/schools/:school/users/:id', this.auth, (req, res, next) => {
 			this.database.getUser(req.params.school, req.params.id)
 			.then((data) => {
-				res.json(data);
+				res.json(Object.assign(data, {
+					pwd: undefined,
+					oid_id: undefined,
+				}));
 			}).catch(next);
 		});
 
-		// this.router.all('/*', this.auth);
+		this.router.use('/*', (req, res, next) => {
+			next(new NotFoundError());
+		});
 		this.router.use(API.error);
 	}
 

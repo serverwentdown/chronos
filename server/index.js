@@ -11,7 +11,14 @@ const database = new Database({
 });
 const api = new API(database);
 
-app.use('/', express.static(path.join(__dirname, '..', 'app')));
+// API mount
 app.use('/api/v1', api.router);
+// API fallback
+app.use('/api', (req, res) => res.end('API'));
 
-app.listen(8080);
+// Assets
+app.use('/', express.static(path.join(__dirname, '..', 'app')));
+// Pages
+app.get('/*', (req, res) => res.sendFile(path.join(__dirname, '..', 'app', 'index.html')));
+
+app.listen(process.env.PORT || 8080);

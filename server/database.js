@@ -19,7 +19,7 @@ export default class Database {
 			FROM school
 		`);
 	}
-	async getSchool(id) {
+	async getSchoolWithAuth(id) {
 		return this.query(`
 			SELECT *
 			FROM auth RIGHT JOIN school
@@ -36,7 +36,6 @@ export default class Database {
 				school: undefined,
 				name: undefined,
 				domain: undefined,
-				oid_csecret: undefined,
 			})),
 		}))
 		.catch(err => err.withNoun('School'));
@@ -52,12 +51,12 @@ export default class Database {
 	}
 	async getUser(school, id) {
 		return this.query(`
-			SELECT id, name, email, role
+			SELECT *
 			FROM user
 			WHERE user.school = ?
 			AND user.id = ?
 		`, [school, id], {
-			required: true,
+			single: true,
 		})
 		.catch(err => err.withNoun('User'));
 	}
@@ -68,10 +67,14 @@ export default class Database {
 			this.connection.query(query, values, (err, results, fields) => {
 				if (err) {
 					reject(err);
-				} else if (options.required === true && results.length < 1) {
+				} else if ((options.required || options.single) && results.length < 1) {
 					reject(new NotFoundError());
 				}
-				resolve(results, fields);
+				if (options.single) {
+					resolve(results[0], fields);
+				} else {
+					resolve(results, fields);
+				}
 			});
 		});
 	}
@@ -90,9 +93,10 @@ export default class Database {
 			// database is up-to-date
 			return true;
 		} else if (semver.satisfies(oldVersion, '~0')) { // lmao forces database migration
+			return true;
 			// database needs to be updated
-			return this.query(`DROP DATABASE ${DATABASE}`)
-			.then(() => this.checkAndMigrate());
+			// return this.query(`DROP DATABASE ${DATABASE}`)
+			// .then(() => this.checkAndMigrate());
 		}
 		// database does not exist
 
@@ -205,12 +209,16 @@ export default class Database {
 			VALUES ('version', '${getVersion()}')
 		`);
 
-		// TODO: Build admin interface to add schools
+		// TODO: Build admin interface to add schools and school owner
 		// add first school
 		const firstSchool = await this.query(`
 			INSERT INTO school (name, domain)
 			VALUES (?, ?)
 		`, ['NUS High School', 'nushigh.edu.sg']);
+		await this.query(`
+			INSERT INTO user (school, name, email, pwd_hash, role)
+			VALUES (?, ?, ?, ?, ?)
+		`, [firstSchool.insertId, 'Ambrose Chua', 'h1310031@nushigh.edu.sg', '', 'OWN']);
 
 		// eslint-disable-next-line global-require
 		const fs = require('fs');
