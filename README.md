@@ -7,6 +7,15 @@ A school event planner and timetable
 
 - [ ] Migrations, default data
 - [ ] Authentication
+	- [ ] Global React `user`
+	- [x] OID auth client
+	- [ ] jwt token provider
+		- [ ] auth is a choice between oidc and pass, sends token/pass to `/auth` for validation
+		- [ ] `/auth` verifies oid token or pass, generates signed jwt
+			- [ ] jwt taken contains user role
+			- [ ] hide/protect certain element
+		- [ ] fake validator for jwt at protected endpoints
+			- [ ] assume user is admin
 - [ ] Create group
 - [ ] Create one-off events
 - [ ] Create attachments
