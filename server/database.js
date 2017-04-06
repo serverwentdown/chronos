@@ -1,5 +1,6 @@
 import mysql from 'mysql';
 import semver from 'semver';
+
 import { fatal, getVersion } from './utils';
 import { NotFoundError } from './errors';
 

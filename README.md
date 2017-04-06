@@ -27,3 +27,8 @@ A school event planner and timetable
 - [ ] Display events as calendar
 
 - [ ] Create sample data
+
+## Security Pitfalls 
+
+- Auth mechanism not verified
+- Succeptable to insecure direct object references
