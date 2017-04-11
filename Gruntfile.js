@@ -7,7 +7,7 @@ module.exports = function (grunt) {
 				entry: __dirname + '/app/index.jsx',
 				output: {
 					filename: 'bundle.js',
-					path: __dirname + '/dist/app/'
+					path: __dirname + '/dist/app/',
 				},
 				resolve: {
 					extensions: ['.js', '.jsx'],
@@ -25,15 +25,15 @@ module.exports = function (grunt) {
 										presets: [
 											['env', {
 												targets: {
-													browsers: ['last 2 versions']
+													browsers: ['last 2 versions'],
 												},
-												modules: false
+												modules: false,
 											}],
-											'react'
-										]
-									}
-								}
-							]
+											'react',
+										],
+									},
+								},
+							],
 						},
 						{
 							test: /\.css$/,
@@ -45,17 +45,17 @@ module.exports = function (grunt) {
 										sourceMap: true,
 										modules: true,
 										importLoaders: 1,
-										localIdentName: '[name]--[local]--[hash:base64:8]'
-									}
+										localIdentName: '[name]--[local]--[hash:base64:8]',
+									},
 								},
 								{
-									loader: 'postcss-loader'
-								}
-							]
-						}
-					]
-				}
-			}
+									loader: 'postcss-loader',
+								},
+							],
+						},
+					],
+				},
+			},
 		},
 		copy: {
 			app: {
@@ -64,34 +64,37 @@ module.exports = function (grunt) {
 						expand: true,
 						cwd: __dirname + '/app/',
 						src: ['index.html'],
-						dest: __dirname + '/dist/app/'
+						dest: __dirname + '/dist/app/',
 					},
 					{
 						expand: true,
 						cwd: __dirname + '/app/',
 						src: ['assets/**'],
-						dest: __dirname + '/dist/app/assets/'
+						dest: __dirname + '/dist/app/assets/',
 					},
 					{
 						expand: true,
 						cwd: __dirname + '/node_modules/oidc-client/',
 						src: ['dist/**'],
-						dest: __dirname + '/dist/app/assets/oidc-client/'
-					}
-				]
-			}
+						dest: __dirname + '/dist/app/assets/oidc-client/',
+					},
+				],
+			},
 		},
 		babel: {
 			options: {
 				sourceMap: true,
 				presets: [
-					['env', {
-						targets: {
-							node: 'current'
+					[
+						'env', 
+						{
+							targets: {
+								node: 'current',
+							},
+							modules: 'commonjs',
 						},
-						modules: 'commonjs'
-					}]
-				]
+					],
+				],
 			},
 			server: {
 				files: [
@@ -99,10 +102,10 @@ module.exports = function (grunt) {
 						expand: true,
 						cwd: __dirname + '/server/',
 						src: ['**/*.js'],
-						dest: __dirname + '/dist/server/'
-					}
-				]
-			}
+						dest: __dirname + '/dist/server/',
+					},
+				],
+			},
 		},
 		eslint: {
 			app: {
@@ -111,9 +114,9 @@ module.exports = function (grunt) {
 						expand: true,
 						cwd: __dirname + '/app/',
 						src: ['**/*.js*'],
-						dest: __dirname + '/dist/app/'
-					}
-				]
+						dest: __dirname + '/dist/app/',
+					},
+				],
 			},
 			server: {
 				files: [
@@ -121,27 +124,27 @@ module.exports = function (grunt) {
 						expand: true,
 						cwd: __dirname + '/server/',
 						src: ['**/*.js'],
-						dest: __dirname + '/dist/server/'
-					}
-				]
-			}
+						dest: __dirname + '/dist/server/',
+					},
+				],
+			},
 		},
 		watch: {
 			app: {
 				files: '**/*.js*',
 				tasks: ['app'],
 				options: {
-					cwd: __dirname + '/app/'
-				}
+					cwd: __dirname + '/app/',
+				},
 			},
 			server: {
 				files: '**/*.js',
 				tasks: ['server'],
 				options: {
-					cwd: __dirname + '/server/'
-				}
-			}
-		}
+					cwd: __dirname + '/server/',
+				},
+			},
+		},
 	});
 
 	grunt.loadNpmTasks('grunt-webpack');

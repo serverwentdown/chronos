@@ -4,6 +4,21 @@ import { Input, Button, Snackbar } from 'react-toolbox';
 
 import { UserManager } from 'oidc-client';
 
+const getParams = (query) => {
+	if (!query) {
+		return {};
+	}
+
+	return (/^[?#]/.test(query) ? query.slice(1) : query)
+		.split('&')
+		.reduce((params, param) => {
+			const [key, value] = param.split('=');
+			const obj = {};
+			obj[key] = value ? decodeURIComponent(value.replace(/\+/g, ' ')) : '';
+			return Object.assign(params, obj);
+		}, {});
+};
+
 // eslint-disable-next-line react/prefer-stateless-function
 export default class PageLoginSchool extends React.Component {
 	constructor(props) {
@@ -26,16 +41,33 @@ export default class PageLoginSchool extends React.Component {
 					client_id: this.state.school.auth[0].oid_cid,
 					redirect_uri: `${window.location.origin}/login/${this.state.school.id}`,
 				});
-				this.userManager.getUser()
-				.then((user) => {
-					console.log(user);
-					if (user) {
-						this.context.router.history.push('/');
-					}
-				})
-				.catch(() => {
-
-				});
+				const params = getParams(window.location.hash);
+				if (params.id_token) {
+					// TODO: check auth by sending request to server
+					// TODO: auth endpoint should return user information
+					// TODO: use user information here:
+					const method = 'POST';
+					const headers = new Headers();
+					headers.append('Content-Type', 'application/json');
+					const body = JSON.stringify({
+						type: 'OID',
+						id_token: params.id_token,
+					});
+					fetch(`/api/v1/schools/${this.state.school.id}/login`, {
+						method,	headers, body,
+					}).then(async (response) => {
+						if (response.ok) {
+							Object.assign(this.context.user, await response.json());
+							this.context.router.history.push('/');
+						} else {
+							console.error(await response.json());
+							// TODO
+						}
+					}).catch((e) => {
+						// TODO
+						console.error(e);
+					});
+				}
 			}
 		});
 	}
@@ -122,4 +154,6 @@ PageLoginSchool.contextTypes = {
 			push: React.PropTypes.func.isRequired,
 		}).isRequired,
 	}).isRequired,
+	// eslint-disable-next-line react/forbid-prop-types
+	user: React.PropTypes.object.isRequired,
 };

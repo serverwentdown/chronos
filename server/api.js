@@ -1,6 +1,11 @@
 import { get } from 'https';
 import Router from 'express';
-import { WebError, UnauthenticatedError, NotFoundError } from './errors';
+import bodyParser from 'body-parser';
+import fetch from 'node-fetch';
+import jwt from 'jsonwebtoken';
+import jwkToPem from 'jwk-to-pem';
+
+import { WebError, UnknownError, UnauthenticatedError, NotFoundError, InvalidCredentialsError, BadRequestError } from './errors';
 
 export default class API {
 	constructor(database) {
@@ -9,9 +14,13 @@ export default class API {
 		// Binds
 		this.auth = this.auth.bind(this);
 
+		// Router
+
 		this.router = Router({
 			strict: true,
 		});
+
+		this.router.use(bodyParser.json());
 
 		// Routes
 
@@ -50,21 +59,33 @@ export default class API {
 			.catch(next);
 		});
 
+		// Login
+		this.router.post('/schools/:school/login', (req, res, next) => {
+			this.checkLogin(req.params.school, req.body)
+			.then((l) => {
+				res.json(l);
+				// Generate and return token
+			})
+			.catch(next);
+		});
+
 		// Users
 		this.router.get('/schools/:school/users/', this.auth, (req, res, next) => {
 			this.database.getUsers(req.params.school)
 			.then((data) => {
 				res.json(data);
-			}).catch(next);
+			})
+			.catch(next);
 		});
 		this.router.get('/schools/:school/users/:id', this.auth, (req, res, next) => {
-			this.database.getUser(req.params.school, req.params.id)
+			this.database.getUserWithSchool(req.params.school, req.params.id)
 			.then((data) => {
 				res.json(Object.assign(data, {
 					pwd: undefined,
 					oid_id: undefined,
 				}));
-			}).catch(next);
+			})
+			.catch(next);
 		});
 
 		this.router.use('/*', (req, res, next) => {
@@ -76,6 +97,9 @@ export default class API {
 	auth(req, res, next) {
 		// res.end('not implemented');
 		if (this.validate(req.get('FakeAuth'))) {
+			req.user = {
+				id: req.get('FakeID'),
+			};
 			return next();
 		}
 		return next(new UnauthenticatedError());
@@ -86,15 +110,59 @@ export default class API {
 		return !!token;
 	}
 
+	async checkLogin(school, options) {
+		const checkLoginPassword = async () => {
+			// TODO
+			throw new InvalidCredentialsError('Not implemented');
+		};
+		const checkLoginToken = async (sch, token) => {
+			// do
+			// - get school
+			// then
+			// - fetch school private key
+			// then
+			// - verify jwt
+			const s = await this.database.getSchoolWithAuth(sch);
+			const oidUrl = s.auth[0].oid_meta;
+			if (!oidUrl) {
+				throw new Error();
+			}
+			const o = await fetch(oidUrl).then(res => res.json());
+			const jwksUrl = o.jwks_uri;
+			const k = await fetch(jwksUrl).then(res => res.json());
+			const keys = k.keys;
+			const verified = keys.reduce((a, key) => {
+				try {
+					return jwt.verify(token, jwkToPem(key), {
+						algorithms: ['RS256', 'RS384', 'RS512', 'ES256', 'ES384', 'ES512'],
+						ignoreExpiration: true,
+					});
+				} catch (e) {
+					return a;
+				}
+			}, null);
+			if (!verified) {
+				throw new InvalidCredentialsError('Token not verifiable');
+			}
+			return verified;
+		};
+		if (options.type === 'PWD') { // not used
+			return this.database.getUserByEmail(options.email)
+			.then(data => checkLoginPassword(data.pwd_hash, options.pwd) && data);
+		} else if (options.type === 'OID') {
+			return checkLoginToken(school, options.id_token)
+			.then(data => this.database.getUserByEmail(data.upn));
+		}
+		return new BadRequestError();
+	}
+
 	// eslint-disable-next-line no-unused-vars
 	static error(err, req, res, next) {
 		if (err instanceof WebError) {
 			err.responseTo(res);
 		} else if (err) {
 			console.error(err);
-			res.status(500).json({
-				error: 'Unknown error',
-			});
+			new UnknownError().responseTo(res);
 		}
 		next();
 	}

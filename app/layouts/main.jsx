@@ -14,7 +14,7 @@ export default class LayoutMain extends React.Component {
 
 	toggleDrawerActive() {
 		this.setState({
-			drawerActive: !this.state.drawerActive,
+			drawerActive: !this.state.drawerActive, // TODO: use function instead
 		});
 	}
 
@@ -27,11 +27,14 @@ export default class LayoutMain extends React.Component {
 					onOverlayClick={this.toggleDrawerActive}
 				>
 					<div style={{ fontSize: '1.2em' }}>
-						{this.props.user ? `Hello, ${this.props.user.name}!` : 'Not logged in'}
+						{this.context.user.email ?
+							<span>
+								Hello, <span title={this.context.user.email}>{this.context.user.name}</span>!
+							</span> : 'Not logged in'}
 					</div>
 					<List selectable ripple>
-						{this.props.user ? <ListItem caption="Home" onClick={() => this.context.router.history.push('/')} /> : null}
-						{this.props.user ? <ListItem caption="Logout" /> : null}
+						{this.context.user.email ? <ListItem caption="Home" onClick={() => this.context.router.history.push('/')} /> : null}
+						{this.context.user.email ? <ListItem caption="Logout" /> : null}
 						<ListItem caption="Help" />
 						<ListItem caption="About" />
 						<ListItem to="https://github.com/ambrosechua/chronos" caption="GitHub" />
@@ -40,8 +43,7 @@ export default class LayoutMain extends React.Component {
 				<Panel>
 					<AppBar title="Chronos" leftIcon="menu" onLeftIconClick={this.toggleDrawerActive}>
 						<Navigation type="horizontal">
-							<Link label="Inbox" icon="inbox" onClick={() => this.context.router.history.push('/login')} />
-							<Link active label="Profile" icon="person" />
+							<Link label="Login" onClick={() => this.context.router.history.push('/login')} style={{ color: 'var(--color-dark-contrast)' }} />
 						</Navigation>
 					</AppBar>
 					{this.props.children}
@@ -53,14 +55,10 @@ export default class LayoutMain extends React.Component {
 
 LayoutMain.defaultProps = {
 	children: null,
-	user: null,
 };
 
 LayoutMain.propTypes = {
 	children: React.PropTypes.node,
-	user: React.PropTypes.shape({
-		name: React.PropTypes.string,
-	}),
 };
 
 LayoutMain.contextTypes = {
@@ -69,5 +67,7 @@ LayoutMain.contextTypes = {
 			push: React.PropTypes.func.isRequired,
 		}).isRequired,
 	}).isRequired,
+	// eslint-disable-next-line react/forbid-prop-types
+	user: React.PropTypes.object.isRequired,
 };
 

@@ -31,4 +31,5 @@ A school event planner and timetable
 ## Security Pitfalls 
 
 - Auth mechanism not verified
+- Verification of OID tokens is done by upn being the email address
 - Succeptable to insecure direct object references

@@ -33,13 +33,13 @@ export default class Database {
 			id: results[0].id,
 			name: results[0].name,
 			domain: results[0].domain,
-			auth: results.map(r => Object.assign(r, {
+			auth: results[0].type ? results.map(r => Object.assign(r, {
 				school: undefined,
 				name: undefined,
 				domain: undefined,
-			})),
+			})) : [],
 		}))
-		.catch(err => err.withNoun('School'));
+		.catch(err => Promise.reject(err.withNoun('School')));
 	}
 
 	// eslint-disable-next-line class-methods-use-this
@@ -50,7 +50,17 @@ export default class Database {
 			WHERE user.school = ?
 		`, [school]);
 	}
-	async getUser(school, id) {
+	async getUser(id) {
+		return this.query(`
+			SELECT *
+			FROM user
+			WHERE user.id = ?
+		`, [id], {
+			single: true,
+		})
+		.catch(err => Promise.reject(err.withNoun('User')));
+	}
+	async getUserWithSchool(school, id) {
 		return this.query(`
 			SELECT *
 			FROM user
@@ -59,7 +69,18 @@ export default class Database {
 		`, [school, id], {
 			single: true,
 		})
-		.catch(err => err.withNoun('User'));
+		.catch(err => Promise.reject(err.withNoun('User')));
+	}
+	async getUserByEmail(email) {
+		// assumes unique email
+		return this.query(`
+			SELECT *
+			FROM user
+			WHERE user.email = ?
+		`, [email], {
+			single: true,
+		})
+		.catch(err => Promise.reject(err.withNoun('User')));
 	}
 
 	query(query, values, options = {}) {
