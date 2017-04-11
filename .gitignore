@@ -9,4 +9,4 @@ dist/
 # Temporary files
 oid_settings.json
 nginx.conf
-sample_*.sql
+sample_*
