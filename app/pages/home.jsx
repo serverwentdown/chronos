@@ -7,7 +7,6 @@ import { Card, CardTitle, CardText, CardActions, Button } from 'react-toolbox';
 
 import AddEventDialog from '../components/addeventdialog';
 
-// eslint-disable-next-line react/prefer-stateless-function
 export default class PageHome extends React.Component {
 	constructor(props) {
 		super(props);

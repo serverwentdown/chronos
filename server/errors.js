@@ -59,3 +59,12 @@ export class BadRequestError extends WebError {
 		this.code = 400;
 	}
 }
+
+export function attachNoun(noun) {
+	return (err) => {
+		if (err.withNoun) {
+			return Promise.reject(err.withNoun(noun));
+		}
+		return Promise.reject(err);
+	};
+}

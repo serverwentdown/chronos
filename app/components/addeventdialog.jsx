@@ -125,3 +125,10 @@ export default class AddEventDialog extends React.Component {
 AddEventDialog.propTypes = {
 	onCancel: React.PropTypes.func.isRequired,
 };
+
+AddEventDialog.contextTypes = {
+	// eslint-disable-next-line react/forbid-prop-types
+	user: React.PropTypes.object.isRequired,
+	token: React.PropTypes.string,
+};
+

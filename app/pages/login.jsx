@@ -2,7 +2,6 @@ import React from 'react';
 
 import { Dropdown } from 'react-toolbox';
 
-// eslint-disable-next-line react/prefer-stateless-function
 export default class PageLogin extends React.Component {
 	constructor(props) {
 		super(props);

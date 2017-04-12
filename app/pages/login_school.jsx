@@ -19,7 +19,6 @@ const getParams = (query) => {
 		}, {});
 };
 
-// eslint-disable-next-line react/prefer-stateless-function
 export default class PageLoginSchool extends React.Component {
 	constructor(props) {
 		super(props);
@@ -43,9 +42,6 @@ export default class PageLoginSchool extends React.Component {
 				});
 				const params = getParams(window.location.hash);
 				if (params.id_token) {
-					// TODO: check auth by sending request to server
-					// TODO: auth endpoint should return user information
-					// TODO: use user information here:
 					const method = 'POST';
 					const headers = new Headers();
 					headers.append('Content-Type', 'application/json');
@@ -57,6 +53,7 @@ export default class PageLoginSchool extends React.Component {
 						method,	headers, body,
 					}).then(async (response) => {
 						if (response.ok) {
+							// TODO: change to setting token
 							Object.assign(this.context.user, await response.json());
 							this.context.router.history.push('/');
 						} else {
@@ -156,4 +153,5 @@ PageLoginSchool.contextTypes = {
 	}).isRequired,
 	// eslint-disable-next-line react/forbid-prop-types
 	user: React.PropTypes.object.isRequired,
+	token: React.PropTypes.string,
 };

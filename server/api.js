@@ -62,9 +62,9 @@ export default class API {
 		// Login
 		this.router.post('/schools/:school/login', (req, res, next) => {
 			this.checkLogin(req.params.school, req.body)
-			.then((l) => {
-				res.json(l);
-				// Generate and return token
+			.then((data) => {
+				res.json(data);
+				// TODO: generate and return token instead of user object
 			})
 			.catch(next);
 		});
@@ -78,12 +78,35 @@ export default class API {
 			.catch(next);
 		});
 		this.router.get('/schools/:school/users/:id', this.auth, (req, res, next) => {
-			this.database.getUserWithSchool(req.params.school, req.params.id)
+			this.database.getUser(req.params.school, req.params.id)
 			.then((data) => {
 				res.json(Object.assign(data, {
 					pwd: undefined,
 					oid_id: undefined,
 				}));
+			})
+			.catch(next);
+		});
+		this.router.get('/schools/:school/users/:id/groups', this.auth, (req, res, next) => {
+			this.database.getUserGroups(req.params.school, req.params.id)
+			.then((data) => {
+				res.json(data);
+			})
+			.catch(next);
+		});
+
+		// Groups
+		this.router.get('/schools/:school/groups/', this.auth, (req, res, next) => {
+			this.database.getGroups(req.params.school)
+			.then((data) => {
+				res.json(data);
+			})
+			.catch(next);
+		});
+		this.router.post('/schools/:school/groups/', this.auth, (req, res, next) => {
+			this.database.createGroup(req.params.school, req.body)
+			.then((data) => {
+				res.json(data);
 			})
 			.catch(next);
 		});
@@ -116,12 +139,6 @@ export default class API {
 			throw new InvalidCredentialsError('Not implemented');
 		};
 		const checkLoginToken = async (sch, token) => {
-			// do
-			// - get school
-			// then
-			// - fetch school private key
-			// then
-			// - verify jwt
 			const s = await this.database.getSchoolWithAuth(sch);
 			const oidUrl = s.auth[0].oid_meta;
 			if (!oidUrl) {
@@ -135,7 +152,7 @@ export default class API {
 				try {
 					return jwt.verify(token, jwkToPem(key), {
 						algorithms: ['RS256', 'RS384', 'RS512', 'ES256', 'ES384', 'ES512'],
-						ignoreExpiration: true,
+						//ignoreExpiration: true,
 					});
 				} catch (e) {
 					return a;
@@ -147,11 +164,11 @@ export default class API {
 			return verified;
 		};
 		if (options.type === 'PWD') { // not used
-			return this.database.getUserByEmail(options.email)
+			return this.database.getUserByEmail(school, options.email)
 			.then(data => checkLoginPassword(data.pwd_hash, options.pwd) && data);
-		} else if (options.type === 'OID') {
+		} else if (options.type === 'OID') { // TODO: create user if user not found? no.
 			return checkLoginToken(school, options.id_token)
-			.then(data => this.database.getUserByEmail(data.upn));
+			.then(data => this.database.getUserByEmail(school, data.upn));
 		}
 		return new BadRequestError();
 	}

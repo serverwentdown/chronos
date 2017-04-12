@@ -2,7 +2,7 @@ import mysql from 'mysql';
 import semver from 'semver';
 
 import { fatal, getVersion } from './utils';
-import { NotFoundError } from './errors';
+import { NotFoundError, attachNoun } from './errors';
 
 const DATABASE = 'chronos';
 
@@ -39,7 +39,7 @@ export default class Database {
 				domain: undefined,
 			})) : [],
 		}))
-		.catch(err => Promise.reject(err.withNoun('School')));
+		.catch(attachNoun('School'));
 	}
 
 	// eslint-disable-next-line class-methods-use-this
@@ -50,17 +50,7 @@ export default class Database {
 			WHERE user.school = ?
 		`, [school]);
 	}
-	async getUser(id) {
-		return this.query(`
-			SELECT *
-			FROM user
-			WHERE user.id = ?
-		`, [id], {
-			single: true,
-		})
-		.catch(err => Promise.reject(err.withNoun('User')));
-	}
-	async getUserWithSchool(school, id) {
+	async getUser(school, id) {
 		return this.query(`
 			SELECT *
 			FROM user
@@ -69,18 +59,56 @@ export default class Database {
 		`, [school, id], {
 			single: true,
 		})
-		.catch(err => Promise.reject(err.withNoun('User')));
+		.catch(attachNoun('User'));
 	}
-	async getUserByEmail(email) {
+	async getUserByEmail(school, email) {
 		// assumes unique email
 		return this.query(`
 			SELECT *
 			FROM user
-			WHERE user.email = ?
-		`, [email], {
+			WHERE user.school = ?
+			AND user.email = ?
+		`, [school, email], {
 			single: true,
 		})
-		.catch(err => Promise.reject(err.withNoun('User')));
+		.catch(attachNoun('User'));
+	}
+	async getUserGroups(school, id) {
+		return this.query(`
+			SELECT *
+			FROM member, group_
+			WHERE member.group_ = group_.id
+			AND member.user = ?
+		`, [id])
+		.catch(attachNoun('Group'));
+	}
+
+	async getGroups(school) {
+		return this.query(`
+			SELECT *
+			FROM user, member, group_
+			WHERE member.group_ = group_.id
+			AND member.user = user.id
+			AND user.school = ?
+		`, [school]);
+	}
+	async createGroup(school, data) {
+		console.log(data);
+		const group = await this.query(`
+			INSERT INTO group_ (name, type)
+			VALUES (?, ?)
+		`, [data.name, data.type]);
+		if (data.type === 'MEN') {
+			await this.query(`
+				INSERT INTO group_mentor (id, level, year)
+				VALUES (?, ?, ?)
+			`, [group.insertId, data.mentor_level, data.mentor_year]);
+		}
+		const insertMember = u => this.query(`
+			INSERT INTO member (user, group_)
+			VALUES (?, ?)
+		`, [u, group.insertId]);
+		await Promise.all(data.members.map(insertMember));
 	}
 
 	query(query, values, options = {}) {

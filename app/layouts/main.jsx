@@ -26,24 +26,73 @@ export default class LayoutMain extends React.Component {
 					permanentAt="md"
 					onOverlayClick={this.toggleDrawerActive}
 				>
-					<div style={{ fontSize: '1.2em' }}>
+					<div
+						style={{ fontSize: '1.2em' }}
+					>
 						{this.context.user.email ?
 							<span>
 								Hello, <span title={this.context.user.email}>{this.context.user.name}</span>!
-							</span> : 'Not logged in'}
+							</span>
+							:
+							'Not logged in'
+						}
 					</div>
-					<List selectable ripple>
-						{this.context.user.email ? <ListItem caption="Home" onClick={() => this.context.router.history.push('/')} /> : null}
-						{this.context.user.email ? <ListItem caption="Logout" /> : null}
-						<ListItem caption="Help" />
-						<ListItem caption="About" />
-						<ListItem to="https://github.com/ambrosechua/chronos" caption="GitHub" />
+					<List
+						selectable
+						ripple
+					>
+						{this.context.user.email ?
+						[
+							<ListItem
+								key={0}
+								caption="Home"
+								onClick={() => this.context.router.history.push('/')}
+							/>,
+							<ListItem
+								key={1}
+								caption="Groups"
+								onClick={() => this.context.router.history.push('/groups')}
+							/>,
+						]
+							:
+							null
+						}
+						<ListItem
+							caption="Help"
+							onClick={() => {}}
+						/>
+						<ListItem
+							caption="About"
+							onClick={() => {}}
+						/>
+						<ListItem
+							caption="GitHub"
+							to="https://github.com/ambrosechua/chronos"
+						/>
 					</List>
 				</NavDrawer>
 				<Panel>
-					<AppBar title="Chronos" leftIcon="menu" onLeftIconClick={this.toggleDrawerActive}>
-						<Navigation type="horizontal">
-							<Link label="Login" onClick={() => this.context.router.history.push('/login')} style={{ color: 'var(--color-dark-contrast)' }} />
+					<AppBar
+						title="Chronos"
+						leftIcon="menu"
+						onLeftIconClick={this.toggleDrawerActive}
+					>
+						<Navigation
+							type="horizontal"
+						>
+							{this.context.user.email ?
+								<Link
+									style={{ color: 'var(--color-dark-contrast)' }}
+									label="Logout"
+									onClick={() => this.context.router.history.push('/logout')}
+								/>
+								:
+								<Link
+									style={{ color: 'var(--color-dark-contrast)' }}
+									label="Login"
+									onClick={() => this.context.router.history.push('/login')}
+								/>
+							}
 						</Navigation>
 					</AppBar>
 					{this.props.children}
@@ -69,5 +118,6 @@ LayoutMain.contextTypes = {
 	}).isRequired,
 	// eslint-disable-next-line react/forbid-prop-types
 	user: React.PropTypes.object.isRequired,
+	token: React.PropTypes.string,
 };
 
