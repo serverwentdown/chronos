@@ -5,24 +5,26 @@ A school event planner and timetable
 
 ## Todo
 
-- [ ] Migrations, default data
+- [x] Migrations
 - [ ] Authentication
-	- [ ] Global React `user`
+	- [x] Global React `user`
 	- [x] OID auth client
 	- [ ] jwt token provider
-		- [ ] auth is a choice between oidc and pass, sends token/pass to `/auth` for validation
+		- [x] auth is a choice between oidc and pass, sends token/pass to `/auth` for validation
 		- [ ] `/auth` verifies oid token or pass, generates signed jwt
 			- [ ] jwt taken contains user role
 			- [ ] hide/protect certain element
-		- [ ] fake validator for jwt at protected endpoints
+		- [x] fake validator for jwt at protected endpoints
 			- [ ] assume user is admin
-- [ ] Create group
+- [x] Create group
 - [ ] Create one-off events
 - [ ] Create attachments
 	- [ ] Description
 	- [ ] File
 - [ ] Create group CCAs
+	- [ ] Create CCA schedules
 - [ ] Create group mentor
+	- [ ] Importable timetables
 - [ ] Display events as agenda
 - [ ] Display events as calendar
 
