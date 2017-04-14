@@ -99,12 +99,13 @@ export default class AddGroupDialog extends React.Component {
 	}
 
 	render() {
+		// TODO: make scrollable
 		return (
 			<Dialog
 				{...this.props}
 				actions={this.actions}
 				title="Create a new group"
-			> // TODO: make scrollable
+			>
 				<Input
 					type="text"
 					label="Name"

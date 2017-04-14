@@ -9,10 +9,6 @@ export default class PageGroups extends React.Component {
 		super(props);
 		this.state = {
 			groups: [
-				{ id: 0, name: 'Test' },
-				{ id: 1, name: 'Test 2' },
-				{ id: 2, name: 'Test 3' },
-				{ id: 3, name: 'Test 4' },
 			],
 			addGroupDialogActive: false,
 		};

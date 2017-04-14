@@ -110,6 +110,13 @@ export default class API {
 			})
 			.catch(next);
 		});
+		this.router.get('/schools/:school/groups/:id', this.auth, (req, res, next) => {
+			this.database.getGroup(req.params.school, req.params.id)
+			.then((data) => {
+				res.json(data);
+			})
+			.catch(next);
+		});
 
 		this.router.use('/*', (req, res, next) => {
 			next(new NotFoundError());

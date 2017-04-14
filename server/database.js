@@ -110,6 +110,42 @@ export default class Database {
 		`, [u, group.insertId]);
 		await Promise.all(data.members.map(insertMember));
 	}
+	async getGroup(school, id) {
+		return this.query(`
+			SELECT
+				group_.id as group_id,
+				group_.name as group_name,
+				group_mentor.year as group_mentor_year,
+				group_mentor.level as group_mentor_level,
+				user.id,
+				user.name
+				user.email
+			FROM 
+				(
+					group_mentor RIGHT JOIN group_
+					ON group_mentor.id = group_.id
+				)
+				RIGHT JOIN (member, user)
+				ON member.group_ = group_.id
+				AND member.user = user.id
+			WHERE group_.id = ?
+		`, [id], {
+			required: true,
+		})
+		.then(results => ({
+			id: results[0].group_id,
+			name: results[0].group_name,
+			level: results[0].group_mentor_level,
+			year: results[0].group_mentor_year,
+			members: results[0].id ? results.map(r => Object.assign(r, {
+				group_id: undefined,
+				group_name: undefined,
+				group_mentor_level: undefined,
+				group_mentor_year: undefined,
+			})) : [],
+		}))
+		.catch(attachNoun('Group'));
+	}
 
 	query(query, values, options = {}) {
 		console.log('QUERY:', query.replace(/[\n\t]+/g, ' ').replace(/^ /g, '').replace(/ $/g, ''));
