@@ -108,43 +108,59 @@ export default class Database {
 			INSERT INTO member (user, group_)
 			VALUES (?, ?)
 		`, [u, group.insertId]);
-		await Promise.all(data.members.map(insertMember));
+		return Promise.all(data.members.map(insertMember));
 	}
 	async getGroup(school, id) {
-		return this.query(`
-			SELECT
-				group_.id as group_id,
-				group_.name as group_name,
-				group_mentor.year as group_mentor_year,
-				group_mentor.level as group_mentor_level,
-				user.id,
-				user.name
-				user.email
-			FROM 
-				(
-					group_mentor RIGHT JOIN group_
-					ON group_mentor.id = group_.id
-				)
-				RIGHT JOIN (member, user)
-				ON member.group_ = group_.id
-				AND member.user = user.id
+		const getGroup = this.query(`
+			SELECT *
+			FROM group_
 			WHERE group_.id = ?
 		`, [id], {
 			required: true,
-		})
-		.then(results => ({
-			id: results[0].group_id,
-			name: results[0].group_name,
-			level: results[0].group_mentor_level,
-			year: results[0].group_mentor_year,
-			members: results[0].id ? results.map(r => Object.assign(r, {
-				group_id: undefined,
-				group_name: undefined,
-				group_mentor_level: undefined,
-				group_mentor_year: undefined,
-			})) : [],
-		}))
-		.catch(attachNoun('Group'));
+			single: true,
+		}).catch(attachNoun('Group'));
+		const getMembers = this.query(`
+			SELECT user.*
+			FROM member, user
+			WHERE member.user = user.id
+			AND member.group_ = ?
+		`, [id]);
+		const getEventsOnce = this.query(`
+			SELECT *
+			FROM event_once
+			WHERE event_once.group_ = ?
+		`, [id]);
+		return Promise.all([getGroup, getMembers, getEventsOnce])
+		.then(results => Object.assign({}, results[0], {
+			members: results[1].map(m => Object.assign(m, {
+				pwd_hash: undefined,
+				oid_id: undefined,
+			})),
+			eventsOnce: results[2],
+		}));
+	}
+
+	async createEventOnce(school, group, data) {
+		return this.query(`
+			INSERT INTO event_once (group_, name, start, end)
+			VALUES (?, ?, ?, ?)
+		`, [group, data.name, data.start, data.end]);
+	}
+	async getEventOnce(school, group, id) {
+		return this.query(`
+			SELECT *
+			FROM event_once
+			WHERE event_once.group_ = ?
+			AND event_once.id = ?
+		`, [group, id]);
+	}
+	// eslint-disable-next-line
+	async getEventClashesWith(school, group, id) {
+		// TODO
+	}
+
+	async getUserEventsBetween(school, user, start, end) {
+		// oh shit
 	}
 
 	query(query, values, options = {}) {
