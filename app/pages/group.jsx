@@ -4,14 +4,14 @@ import { List, ListSubHeader, ListItem } from 'react-toolbox';
 
 export default class PageGroup extends React.Component {
 	constructor(props, context) {
-		super(props);
+		super(props, context);
 		this.state = {
 			id: parseInt(props.match.params.id, 10),
 			group: {},
 			addGroupDialogActive: false,
 		};
 
-		this.fetchGroup(context);
+		this.fetchGroup(context); // TODO: split into three backend calls
 	}
 
 	async fetchGroup(context = this.context) {
@@ -41,9 +41,9 @@ export default class PageGroup extends React.Component {
 					ripple
 				>
 					<ListSubHeader
-						caption="Events"
+						caption="One-time Events"
 					/>
-					{this.state.group.events && this.state.group.events.map(e => (
+					{this.state.group.eventsOnce && this.state.group.eventsOnce.map(e => (
 						<ListItem
 							key={e.id}
 							caption={e.name}

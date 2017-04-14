@@ -81,7 +81,7 @@ export default class API {
 			this.database.getUser(req.params.school, req.params.id)
 			.then((data) => {
 				res.json(Object.assign(data, {
-					pwd: undefined,
+					pwd_hash: undefined,
 					oid_id: undefined,
 				}));
 			})
@@ -112,6 +112,22 @@ export default class API {
 		});
 		this.router.get('/schools/:school/groups/:id', this.auth, (req, res, next) => {
 			this.database.getGroup(req.params.school, req.params.id)
+			.then((data) => {
+				res.json(data);
+			})
+			.catch(next);
+		});
+
+		// Events
+		this.router.post('/schools/:school/groups/:group/eventsOnce/', this.auth, (req, res, next) => {
+			this.database.createEventOnce(req.params.school, req.params.group, req.body)
+			.then((data) => {
+				res.json(data);
+			})
+			.catch(next);
+		});
+		this.router.get('/schools/:school/groups/:group/eventsOnce/:id', this.auth, (req, res, next) => {
+			this.database.getEventOnce(req.params.school, req.params.group, req.params.id)
 			.then((data) => {
 				res.json(data);
 			})

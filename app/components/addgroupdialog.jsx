@@ -4,7 +4,7 @@ import { Dialog, Input, Autocomplete, Dropdown } from 'react-toolbox';
 
 export default class AddGroupDialog extends React.Component {
 	constructor(props, context) {
-		super(props);
+		super(props, context);
 		this.state = {
 			name: '',
 			members: [],
@@ -38,7 +38,7 @@ export default class AddGroupDialog extends React.Component {
 		const headers = new Headers();
 		headers.append('FakeAuth', 'true');
 		headers.append('FakeID', context.user.id);
-		fetch(`/api/v1/schools/${context.user.school}/users`, {
+		fetch(`/api/v1/schools/${context.user.school}/users/`, {
 			headers,
 		})
 		.then(data => data.json())
@@ -69,7 +69,7 @@ export default class AddGroupDialog extends React.Component {
 			mentor_level: this.state.mentor_level,
 			mentor_year: this.state.mentor_year,
 		});
-		fetch(`/api/v1/schools/${this.context.user.school}/groups`, {
+		fetch(`/api/v1/schools/${this.context.user.school}/groups/`, {
 			method, headers, body,
 		})
 		.then(() => {

@@ -16,7 +16,7 @@ export default class PageLogin extends React.Component {
 	}
 
 	async fetchSchools() {
-		return fetch('/api/v1/schools')
+		return fetch('/api/v1/schools/')
 		.then(data => data.json())
 		.then((data) => {
 			this.setState({

@@ -6,10 +6,9 @@ import AddGroupDialog from '../components/addgroupdialog';
 
 export default class PageGroups extends React.Component {
 	constructor(props, context) {
-		super(props);
+		super(props, context);
 		this.state = {
-			groups: [
-			],
+			groups: [],
 			addGroupDialogActive: false,
 		};
 
@@ -21,7 +20,7 @@ export default class PageGroups extends React.Component {
 	}
 
 	async fetchGroups(context = this.context) {
-		return fetch(`/api/v1/schools/${context.user.school}/users/${context.user.id}/groups`, {
+		return fetch(`/api/v1/schools/${context.user.school}/users/${context.user.id}/groups/`, {
 			headers: {
 				FakeAuth: true,
 				FakeID: context.user.id,

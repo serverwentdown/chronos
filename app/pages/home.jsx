@@ -21,6 +21,11 @@ export default class PageHome extends React.Component {
 		this.hideAddEventDialog = this.hideAddEventDialog.bind(this);
 	}
 
+	// eslint-disable-next-line class-methods-use-this
+	fetchEvents() {
+		// Do nothing
+	}
+
 	showAddEventDialog() {
 		this.setState({
 			addEventDialogActive: true,
@@ -51,6 +56,7 @@ export default class PageHome extends React.Component {
 				<AddEventDialog
 					active={this.state.addEventDialogActive}
 					onCancel={this.hideAddEventDialog}
+					onDone={this.fetchEvents}
 					onEscKeyDown={this.hideAddEventDialog}
 					onOverlayClick={this.hideAddEventDialog}
 				/>
