@@ -16,6 +16,7 @@ A school event planner and timetable
 			- [ ] hide/protect certain element
 		- [x] fake validator for jwt at protected endpoints
 			- [ ] assume user is admin
+	- [ ] Redirect when not logged in
 - [x] Create group
 - [x] Create one-off events
 - [ ] Create attachments
