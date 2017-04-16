@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Tabs, Tab, Card, CardTitle, CardText, CardActions, Button } from 'react-toolbox';
+import { Tabs, Tab, Card, CardTitle, CardText, Button } from 'react-toolbox';
 
 import BigCalendar from 'react-big-calendar';
 import moment from 'moment-timezone';
@@ -184,9 +184,6 @@ export default class PageHome extends React.Component {
 							<Card key={`${event.id}@${event.start}`} style={{ margin: '1em', width: 'auto' }}>
 								<CardTitle title={event.name} />
 								<CardText>{`${moment(event.start).format('dddd, MMMM Do YYYY, HH:mm')} to ${moment(event.end).format('MMMM Do, HH:mm')}`}</CardText>
-								<CardActions>
-									<Button label="Edit" accent />
-								</CardActions>
 							</Card>,
 						)}
 					</Tab>

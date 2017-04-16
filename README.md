@@ -31,6 +31,7 @@ A school event planner and timetable
 - [x] Display events as agenda
 - [x] Display events as calendar
 	- [ ] Drag one-time events around to modify
+	- [ ] Hide weekly events in month view
 - [ ] Show heatmap of the availability of the users in a group when creating an event
 	- This is the event planning feature
 

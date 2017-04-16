@@ -141,8 +141,10 @@ export default class Database {
 				pwd_hash: undefined,
 				oid_id: undefined,
 			})),
-			eventsOnce: results[2],
-			eventsWeekly: results[3],
+			// eslint-disable-next-line no-underscore-dangle
+			eventsOnce: results[2].map(e => Object.assign({ group: e.group_ }, e)),
+			// eslint-disable-next-line no-underscore-dangle
+			eventsWeekly: results[3].map(e => Object.assign({ group: e.group_ }, e)),
 		}));
 	}
 
@@ -167,12 +169,9 @@ export default class Database {
 			FROM event_once
 			WHERE event_once.group_ = ?
 			AND event_once.id = ?
-		`, [group, id]);
-	}
-
-	// eslint-disable-next-line
-	async getEventClashesWith(school, group, id) {
-		// TODO
+		`, [group, id])
+		// eslint-disable-next-line no-underscore-dangle
+		.then(e => Object.assign({ group: e.group_ }, e));
 	}
 
 	async getUserEventsBetween(school, user, start, end) {
@@ -196,7 +195,12 @@ export default class Database {
 			AND member.user = ?
 		`, [user]);
 		return Promise.all([getEventsOnce, getEventsWeekly])
-		.then(results => ({ eventsOnce: results[0], eventsWeekly: results[1] }));
+		.then(results => ({
+			// eslint-disable-next-line no-underscore-dangle
+			eventsOnce: results[0].map(e => Object.assign({ group: e.group_ }, e)),
+			// eslint-disable-next-line no-underscore-dangle
+			eventsWeekly: results[1].map(e => Object.assign({ group: e.group_ }, e)),
+		}));
 	}
 
 	query(query, values, options = {}) {
@@ -316,6 +320,8 @@ export default class Database {
 			`CREATE TABLE attachment (
 				event_once	INT NOT NULL,
 				id			INT NOT NULL,
+				type		CHAR(3) NOT NULL,
+				text_oid	VARCHAR(1024) NOT NULL,
 				PRIMARY KEY (event_once, id),
 				FOREIGN KEY (event_once) REFERENCES event_once(id) ON DELETE CASCADE ON UPDATE CASCADE
 			)`,

@@ -7,6 +7,7 @@ import PageLogin from '../pages/login';
 import PageLoginSchool from '../pages/login_school';
 import PageGroups from '../pages/groups';
 import PageGroup from '../pages/group';
+import PageEvent from '../pages/event';
 
 export default class App extends React.Component {
 	getChildContext() {
@@ -33,9 +34,10 @@ export default class App extends React.Component {
 				<LayoutMain>
 					<Route exact path="/" component={PageHome} />
 					<Route path="/login" component={PageLogin} />
-					<Route path="/login/:id" component={PageLoginSchool} />
+					<Route exact path="/login/:id" component={PageLoginSchool} />
 					<Route exact path="/groups" component={PageGroups} />
-					<Route path="/groups/:id" component={PageGroup} />
+					<Route exact path="/groups/:id" component={PageGroup} />
+					<Route exact path="/groups/:group/events/:id" component={PageEvent} />
 				</LayoutMain>
 			</Router>
 		);
