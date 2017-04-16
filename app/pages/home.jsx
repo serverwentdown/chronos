@@ -160,7 +160,7 @@ export default class PageHome extends React.Component {
 	}
 
 	handleSelectEvent(event) {
-		this.context.router.history.push(`/events/${event.id}`);
+		this.context.router.history.push(`/groups/${event.group}/events/${event.id}`);
 	}
 
 	showAddEventDialog() {

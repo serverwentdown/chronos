@@ -87,6 +87,7 @@ export default class PageGroup extends React.Component {
 							rightActions={[
 								<FontIcon key={0} value="delete" onClick={() => console.log('Hi')} />,
 							]}
+							onClick={() => this.context.router.history.push(`/groups/${e.group}/events/${e.id}`)}
 						/>
 					))}
 					<ListItem
