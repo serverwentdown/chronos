@@ -28,10 +28,10 @@ export default class LayoutMain extends React.Component {
 	}
 
 	paginatePrev() {
-		this.context.tooling.onPaginatePrev();
+		this.context.tooling.paginatePrev();
 	}
 	paginateNext() {
-		this.context.tooling.onPaginateNext();
+		this.context.tooling.paginateNext();
 	}
 
 	toggleDrawerActive() {

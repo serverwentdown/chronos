@@ -30,6 +30,10 @@ A school event planner and timetable
 - [x] Display events as calendar
 
 - [ ] Create sample data
+- [ ] Create admin interface in JavaFX (requirement)
+	- [ ] Manage schools
+	- [ ] Manage users in schools
+	- [ ] Bulk create groups
 
 - [ ] Refactor toolbar mutator for homepage pagination
 
