@@ -42,7 +42,7 @@ export default class API {
 			this.database.getSchoolWithAuth(req.params.school)
 			.then((data) => {
 				res.json(Object.assign(data, {
-					auth: data.auth.map(a => Object.assign(a, { oid_csecret: undefined })),
+					auth: data.auth,
 				}));
 			})
 			.catch(next);
@@ -82,10 +82,7 @@ export default class API {
 		this.router.get('/schools/:school/users/:id', this.auth, (req, res, next) => {
 			this.database.getUser(req.params.school, req.params.id)
 			.then((data) => {
-				res.json(Object.assign(data, {
-					pwd_hash: undefined,
-					oid_id: undefined,
-				}));
+				res.json(data);
 			})
 			.catch(next);
 		});
@@ -212,9 +209,10 @@ export default class API {
 			}
 			return verified;
 		};
-		if (options.type === 'PWD') { // not used
+		if (options.type === 'EMAIL') { // not used
 			return this.database.getUserByEmail(school, options.email)
 			.then(data => checkLoginPassword(data.pwd_hash, options.pwd) && data);
+			// whoops, should have been sendAuthEmail
 		} else if (options.type === 'OID') { // TODO: create user if user not found? no.
 			return checkLoginToken(school, options.id_token)
 			.then(data => this.database.getUserByEmail(school, data.upn));

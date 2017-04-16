@@ -16,6 +16,8 @@ A school event planner and timetable
 			- [ ] hide/protect certain element
 		- [x] fake validator for jwt at protected endpoints
 			- [ ] assume user is admin
+	- [ ] Decide between email-validated OID or storing identity strictly
+	- [ ] Additional email-based auth mechanism with tokens (like asciinema)
 	- [ ] Redirect when not logged in
 - [x] Create group
 - [x] Create one-off events

@@ -85,7 +85,7 @@ export default class Database {
 
 	async getGroups(school) {
 		return this.query(`
-			SELECT group_.*
+			SELECT DISTINCT group_.*
 			FROM user, member, group_
 			WHERE member.group_ = group_.id
 			AND member.user = user.id
@@ -137,10 +137,7 @@ export default class Database {
 		`, [id]);
 		return Promise.all([getGroup, getMembers, getEventsOnce, getEventsWeekly])
 		.then(results => Object.assign({}, results[0], {
-			members: results[1].map(m => Object.assign(m, {
-				pwd_hash: undefined,
-				oid_id: undefined,
-			})),
+			members: results[1],
 			// eslint-disable-next-line no-underscore-dangle
 			eventsOnce: results[2].map(e => Object.assign({ group: e.group_ }, e)),
 			// eslint-disable-next-line no-underscore-dangle
@@ -262,6 +259,7 @@ export default class Database {
 				oid_meta	VARCHAR(128),
 				oid_cid		VARCHAR(64),
 				oid_csecret	VARCHAR(64),
+				email_regex	VARCHAR(128),
 				PRIMARY KEY (school, id),
 				FOREIGN KEY (school) REFERENCES school(id) ON DELETE CASCADE ON UPDATE CASCADE
 			)`,
@@ -283,8 +281,6 @@ export default class Database {
 				id			INT	AUTO_INCREMENT NOT NULL,
 				name		VARCHAR(64),
 				email		VARCHAR(64),
-				oid_id		VARCHAR(64),
-				pwd_hash	VARCHAR(64),
 				role		CHAR(3),
 				PRIMARY KEY (id),
 				FOREIGN KEY (school) REFERENCES school(id) ON DELETE CASCADE ON UPDATE CASCADE
@@ -305,6 +301,7 @@ export default class Database {
 			`CREATE TABLE member (
 				user		INT NOT NULL,
 				group_		INT NOT NULL,
+				role		CHAR(3),
 				FOREIGN KEY (user) REFERENCES user(id) ON DELETE CASCADE ON UPDATE CASCADE,
 				FOREIGN KEY (group_) REFERENCES group_(id) ON DELETE CASCADE ON UPDATE CASCADE
 			)`,
@@ -335,7 +332,7 @@ export default class Database {
 				PRIMARY KEY (id),
 				FOREIGN KEY (group_) REFERENCES group_(id) ON DELETE CASCADE ON UPDATE CASCADE
 			)`,
-			`CREATE TABLE ignored (	
+			`CREATE TABLE ignored (
 				user		INT NOT NULL,
 				event_weekly	INT NOT NULL,
 				FOREIGN KEY (user) REFERENCES user(id) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -360,9 +357,9 @@ export default class Database {
 			VALUES (?, ?)
 		`, ['NUS High School', 'nushigh.edu.sg']);
 		await this.query(`
-			INSERT INTO user (school, name, email, pwd_hash, role)
-			VALUES (?, ?, ?, ?, ?)
-		`, [firstSchool.insertId, 'Ambrose Chua', 'h1310031@nushigh.edu.sg', '', 'OWN']);
+			INSERT INTO user (school, name, email, role)
+			VALUES (?, ?, ?, ?)
+		`, [firstSchool.insertId, 'Admin', 'admin@nushigh.edu.sg', 'OWN']);
 
 		// eslint-disable-next-line global-require
 		const fs = require('fs');
@@ -372,6 +369,9 @@ export default class Database {
 			VALUES (?, ?, ?, ?, ?)
 		`, [firstSchool.insertId, 'OID', tmpsettings.oid_meta, tmpsettings.oid_cid, tmpsettings.oid_csecret]);
 
+		if (process.env.GENERATE_DB_ONLY === 'true') {
+			process.exit(0);
+		}
 		return true;
 	}
 }
