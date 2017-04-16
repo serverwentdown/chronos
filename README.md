@@ -19,6 +19,7 @@ A school event planner and timetable
 	- [ ] Redirect when not logged in
 - [x] Create group
 - [x] Create one-off events
+	- [ ] Show event details
 - [ ] Create attachments
 	- [ ] Description
 	- [ ] File
@@ -29,6 +30,9 @@ A school event planner and timetable
 	- [ ] Importable timetables
 - [x] Display events as agenda
 - [x] Display events as calendar
+	- [ ] Drag one-time events around to modify
+- [ ] Show heatmap of the availability of the users in a group when creating an event
+	- This is the event planning feature
 
 - [ ] Create sample data
 - [ ] Create admin interface in JavaFX (requirement)
