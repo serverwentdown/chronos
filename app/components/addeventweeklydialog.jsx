@@ -1,23 +1,34 @@
 import React from 'react';
 
-import { Dialog, Input, Dropdown, DatePicker, TimePicker } from 'react-toolbox';
+import { Dialog, Input, Dropdown, TimePicker } from 'react-toolbox';
 
-export default class AddEventDialog extends React.Component {
+export default class AddEventWeeklyDialog extends React.Component {
 	constructor(props, context) {
 		super(props, context);
 		const now = new Date();
 		this.state = {
 			group: parseInt(props.group, 10), // TODO: make ids type independent in code
 			name: '',
-			start: new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 8),
-			end: new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 10),
+			day: null,
+			starttime: new Date(now.getFullYear(), now.getMonth(), now.getDate(), 8),
+			endtime: new Date(now.getFullYear(), now.getMonth(), now.getDate(), 10),
+			days: [
+				{ value: 0, label: 'Sunday' },
+				{ value: 1, label: 'Monday' },
+				{ value: 2, label: 'Tuesday' },
+				{ value: 3, label: 'Wednesday' },
+				{ value: 4, label: 'Thursday' },
+				{ value: 5, label: 'Friday' },
+				{ value: 6, label: 'Saturday' },
+			],
 			groups: [],
 		};
 
 		this.handleGroupChange = this.handleGroupChange.bind(this);
 		this.handleNameChange = this.handleNameChange.bind(this);
-		this.handleStartChange = this.handleStartChange.bind(this);
-		this.handleEndChange = this.handleEndChange.bind(this);
+		this.handleDayChange = this.handleDayChange.bind(this);
+		this.handleStartTimeChange = this.handleStartTimeChange.bind(this);
+		this.handleEndTimeChange = this.handleEndTimeChange.bind(this);
 		this.addEvent = this.addEvent.bind(this);
 
 		this.actions = [
@@ -54,10 +65,11 @@ export default class AddEventDialog extends React.Component {
 		headers.append('Content-Type', 'application/json');
 		const body = JSON.stringify({
 			name: this.state.name,
-			start: this.state.start,
-			end: this.state.end,
+			day: this.state.day,
+			starttime: this.state.starttime,
+			endtime: this.state.endtime,
 		});
-		fetch(`/api/v1/schools/${this.context.user.school}/groups/${this.state.group}/eventsOnce/`, {
+		fetch(`/api/v1/schools/${this.context.user.school}/groups/${this.state.group}/eventsWeekly/`, {
 			method, headers, body,
 		})
 		.then(() => {
@@ -80,21 +92,20 @@ export default class AddEventDialog extends React.Component {
 		});
 	}
 
-	handleStartChange(value) {
-		this.setState(prev => ({
-			start: value,
-			end: new Date(
-				value.getFullYear(),
-				value.getMonth(),
-				value.getDate(),
-				prev.end.getHours(),
-				prev.end.getMinutes(),
-			),
-		}));
-	}
-	handleEndChange(value) {
+	handleDayChange(value) {
 		this.setState({
-			end: value,
+			day: value,
+		});
+	}
+
+	handleStartTimeChange(value) {
+		this.setState({
+			starttime: value,
+		});
+	}
+	handleEndTimeChange(value) {
+		this.setState({
+			endtime: value,
 		});
 	}
 
@@ -103,7 +114,7 @@ export default class AddEventDialog extends React.Component {
 			<Dialog
 				{...this.props}
 				actions={this.actions}
-				title="Create a one-time event"
+				title="Create a weekly event"
 			>
 				<Dropdown
 					auto
@@ -120,54 +131,42 @@ export default class AddEventDialog extends React.Component {
 					required
 					onChange={this.handleNameChange}
 				/>
-				<DatePicker
-					label="Start Date"
-					minDate={new Date()}
-					value={this.state.start}
+				<Dropdown
+					auto
+					label="Day"
+					source={this.state.days}
+					value={this.state.day}
 					required
-					onChange={this.handleStartChange}
+					onChange={this.handleDayChange}
 				/>
 				<TimePicker
 					label="Start Time"
-					value={this.state.start}
+					value={this.state.starttime}
 					required
-					onChange={this.handleStartChange}
-				/>
-				<DatePicker
-					label="End Date"
-					minDate={
-						new Date(
-							this.state.start.getFullYear(),
-							this.state.start.getMonth(),
-							this.state.start.getDate(),
-						)
-					}
-					value={this.state.end}
-					required
-					onChange={this.handleEndChange}
+					onChange={this.handleStartTimeChange}
 				/>
 				<TimePicker
 					label="End Time"
-					value={this.state.end}
+					value={this.state.endtime}
 					required
-					onChange={this.handleEndChange}
+					onChange={this.handleEndTimeChange}
 				/>
 			</Dialog>
 		);
 	}
 }
 
-AddEventDialog.propTypes = {
+AddEventWeeklyDialog.propTypes = {
 	onCancel: React.PropTypes.func.isRequired,
 	onDone: React.PropTypes.func.isRequired,
 	group: React.PropTypes.string,
 };
 
-AddEventDialog.defaultProps = {
+AddEventWeeklyDialog.defaultProps = {
 	group: null,
 };
 
-AddEventDialog.contextTypes = {
+AddEventWeeklyDialog.contextTypes = {
 	// eslint-disable-next-line react/forbid-prop-types
 	user: React.PropTypes.object.isRequired,
 	token: React.PropTypes.string,

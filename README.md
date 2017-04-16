@@ -17,18 +17,21 @@ A school event planner and timetable
 		- [x] fake validator for jwt at protected endpoints
 			- [ ] assume user is admin
 - [x] Create group
-- [ ] Create one-off events
+- [x] Create one-off events
 - [ ] Create attachments
 	- [ ] Description
 	- [ ] File
-- [ ] Create group CCAs
-	- [ ] Create CCA schedules
-- [ ] Create group mentor
+- [x] Create group CCAs
+	- [x] Create CCA schedules
+	- [ ] Differentiate CCAs from Mentor Groups
+- [x] Create group mentor
 	- [ ] Importable timetables
-- [ ] Display events as agenda
-- [ ] Display events as calendar
+- [x] Display events as agenda
+- [x] Display events as calendar
 
 - [ ] Create sample data
+
+- [ ] Refactor toolbar mutator for homepage pagination
 
 ## Security Pitfalls 
 

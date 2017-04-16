@@ -3,13 +3,35 @@ import React from 'react';
 import { Layout, NavDrawer, Panel, AppBar, Navigation, Link, List, ListItem } from 'react-toolbox';
 
 export default class LayoutMain extends React.Component {
-	constructor(props) {
-		super(props);
+	constructor(props, context) {
+		super(props, context);
 		this.state = {
 			drawerActive: false,
+			title: 'Chronos',
+			showPagination: false,
 		};
+		this.context = context;
+
+		// eslint-disable-next-line no-param-reassign
+		this.context.tooling.onChange(this.setToolbar.bind(this));
+		this.paginatePrev = this.paginatePrev.bind(this);
+		this.paginateNext = this.paginateNext.bind(this);
 
 		this.toggleDrawerActive = this.toggleDrawerActive.bind(this);
+	}
+
+	setToolbar(o) {
+		this.setState({
+			title: o.title || 'Chronos',
+			showPagination: o.showPagination,
+		});
+	}
+
+	paginatePrev() {
+		this.context.tooling.onPaginatePrev();
+	}
+	paginateNext() {
+		this.context.tooling.onPaginateNext();
 	}
 
 	toggleDrawerActive() {
@@ -73,13 +95,27 @@ export default class LayoutMain extends React.Component {
 				</NavDrawer>
 				<Panel>
 					<AppBar
-						title="Chronos"
+						title={this.state.title}
 						leftIcon="menu"
 						onLeftIconClick={this.toggleDrawerActive}
 					>
 						<Navigation
 							type="horizontal"
 						>
+							{this.state.showPagination &&
+								<Link
+									style={{ color: 'var(--color-dark-contrast)' }}
+									icon="navigate_before"
+									onClick={this.paginatePrev}
+								/>
+							}
+							{this.state.showPagination &&
+								<Link
+									style={{ color: 'var(--color-dark-contrast)' }}
+									icon="navigate_next"
+									onClick={this.paginateNext}
+								/>
+							}
 							{this.context.user.email ?
 								<Link
 									style={{ color: 'var(--color-dark-contrast)' }}
@@ -119,5 +155,7 @@ LayoutMain.contextTypes = {
 	// eslint-disable-next-line react/forbid-prop-types
 	user: React.PropTypes.object.isRequired,
 	token: React.PropTypes.string,
+	// eslint-disable-next-line react/forbid-prop-types
+	tooling: React.PropTypes.object.isRequired,
 };
 

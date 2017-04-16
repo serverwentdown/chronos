@@ -7,6 +7,8 @@ import jwkToPem from 'jwk-to-pem';
 
 import { WebError, UnknownError, UnauthenticatedError, NotFoundError, InvalidCredentialsError, BadRequestError } from './errors';
 
+import { computeOccurrences } from './utils';
+
 export default class API {
 	constructor(database) {
 		this.database = database;
@@ -119,6 +121,13 @@ export default class API {
 		});
 
 		// Events
+		this.router.post('/schools/:school/groups/:group/eventsWeekly/', this.auth, (req, res, next) => {
+			this.database.createEventWeekly(req.params.school, req.params.group, req.body)
+			.then((data) => {
+				res.json(data);
+			})
+			.catch(next);
+		});
 		this.router.post('/schools/:school/groups/:group/eventsOnce/', this.auth, (req, res, next) => {
 			this.database.createEventOnce(req.params.school, req.params.group, req.body)
 			.then((data) => {
@@ -130,6 +139,23 @@ export default class API {
 			this.database.getEventOnce(req.params.school, req.params.group, req.params.id)
 			.then((data) => {
 				res.json(data);
+			})
+			.catch(next);
+		});
+
+		this.router.get('/schools/:school/users/:id/events', this.auth, (req, res, next) => {
+			this.database.getUserEventsBetween(
+				req.params.school,
+				req.params.id,
+				req.query.start,
+				req.query.end,
+			)
+			.then((data) => {
+				const eventsWeekly = computeOccurrences(data.eventsWeekly, req.query.start, req.query.end);
+				res.json(data.eventsOnce
+						.map(e => Object.assign({ type: 'once' }, e))
+						.concat(eventsWeekly)
+							.map(e => Object.assign({ type: 'weekly' }, e)));
 			})
 			.catch(next);
 		});

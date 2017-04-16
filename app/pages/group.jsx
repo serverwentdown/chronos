@@ -1,15 +1,27 @@
 import React from 'react';
 
-import { List, ListSubHeader, ListItem } from 'react-toolbox';
+import { List, ListSubHeader, ListItem, ListDivider, FontIcon } from 'react-toolbox';
+import moment from 'moment-timezone';
+
+import AddEventDialog from '../components/addeventdialog';
+import AddEventWeeklyDialog from '../components/addeventweeklydialog';
+
+const getDay = d => 'Sunday Monday Tuesday Wednesday Thursday Friday Saturday'.split(' ')[d];
 
 export default class PageGroup extends React.Component {
 	constructor(props, context) {
 		super(props, context);
 		this.state = {
-			id: parseInt(props.match.params.id, 10),
+			id: props.match.params.id,
 			group: {},
-			addGroupDialogActive: false,
+			addEventDialogActive: false,
+			addEventWeeklyDialogActive: false,
 		};
+
+		this.showAddEventDialog = this.showAddEventDialog.bind(this);
+		this.hideAddEventDialog = this.hideAddEventDialog.bind(this);
+		this.showAddEventWeeklyDialog = this.showAddEventWeeklyDialog.bind(this);
+		this.hideAddEventWeeklyDialog = this.hideAddEventWeeklyDialog.bind(this);
 
 		this.fetchGroup(context); // TODO: split into three backend calls
 	}
@@ -32,6 +44,30 @@ export default class PageGroup extends React.Component {
 		});
 	}
 
+	showAddEventDialog() {
+		this.setState({
+			addEventDialogActive: true,
+		});
+	}
+
+	hideAddEventDialog() {
+		this.setState({
+			addEventDialogActive: false,
+		});
+	}
+
+	showAddEventWeeklyDialog() {
+		this.setState({
+			addEventWeeklyDialogActive: true,
+		});
+	}
+
+	hideAddEventWeeklyDialog() {
+		this.setState({
+			addEventWeeklyDialogActive: false,
+		});
+	}
+
 	render() {
 		return (
 			<main>
@@ -47,13 +83,37 @@ export default class PageGroup extends React.Component {
 						<ListItem
 							key={e.id}
 							caption={e.name}
+							legend={`${moment(e.start).format('dddd, MMMM Do YYYY, HH:mm')} to ${moment(e.end).format('MMMM Do, HH:mm')}`}
+							rightActions={[
+								<FontIcon key={0} value="delete" onClick={() => console.log('Hi')} />,
+							]}
 						/>
 					))}
-					{
-					// TODO: cca schedule or class timetable
-					}
-				</List>
-				<List>
+					<ListItem
+						caption="Create a one-time event"
+						leftIcon="add"
+						onClick={this.showAddEventDialog}
+					/>
+					<ListDivider />
+					<ListSubHeader
+						caption="Weekly Events"
+					/>
+					{this.state.group.eventsWeekly && this.state.group.eventsWeekly.map(e => (
+						<ListItem
+							key={e.id}
+							caption={e.name}
+							legend={`${getDay(e.day)}, ${e.starttime.slice(0, -3)} to ${e.endtime.slice(0, -3)}`}
+							rightActions={[
+								<FontIcon key={0} value="delete" onClick={() => console.log('Hi')} />,
+							]}
+						/>
+					))}
+					<ListItem
+						caption="Create a weekly event"
+						leftIcon="add"
+						onClick={this.showAddEventWeeklyDialog}
+					/>
+					<ListDivider />
 					<ListSubHeader
 						caption="Members"
 					/>
@@ -64,6 +124,22 @@ export default class PageGroup extends React.Component {
 						/>
 					))}
 				</List>
+				<AddEventDialog
+					group={this.state.id}
+					active={this.state.addEventDialogActive}
+					onCancel={this.hideAddEventDialog}
+					onDone={this.fetchGroup}
+					onEscKeyDown={this.hideAddEventDialog}
+					onOverlayClick={this.hideAddEventDialog}
+				/>
+				<AddEventWeeklyDialog
+					group={this.state.id}
+					active={this.state.addEventWeeklyDialogActive}
+					onCancel={this.hideAddEventWeeklyDialog}
+					onDone={this.fetchGroup}
+					onEscKeyDown={this.hideAddEventWeeklyDialog}
+					onOverlayClick={this.hideAddEventWeeklyDialog}
+				/>
 			</main>
 		);
 	}

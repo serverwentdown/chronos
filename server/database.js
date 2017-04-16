@@ -1,7 +1,7 @@
 import mysql from 'mysql';
 import semver from 'semver';
 
-import { fatal, getVersion } from './utils';
+import { fatal, getVersion, stripTimezone } from './utils';
 import { NotFoundError, attachNoun } from './errors';
 
 const DATABASE = 'chronos';
@@ -75,7 +75,7 @@ export default class Database {
 	}
 	async getUserGroups(school, id) {
 		return this.query(`
-			SELECT *
+			SELECT group_.*
 			FROM member, group_
 			WHERE member.group_ = group_.id
 			AND member.user = ?
@@ -85,7 +85,7 @@ export default class Database {
 
 	async getGroups(school) {
 		return this.query(`
-			SELECT *
+			SELECT group_.*
 			FROM user, member, group_
 			WHERE member.group_ = group_.id
 			AND member.user = user.id
@@ -130,21 +130,36 @@ export default class Database {
 			FROM event_once
 			WHERE event_once.group_ = ?
 		`, [id]);
-		return Promise.all([getGroup, getMembers, getEventsOnce])
+		const getEventsWeekly = this.query(`
+			SELECT *
+			FROM event_weekly
+			WHERE event_weekly.group_ = ?
+		`, [id]);
+		return Promise.all([getGroup, getMembers, getEventsOnce, getEventsWeekly])
 		.then(results => Object.assign({}, results[0], {
 			members: results[1].map(m => Object.assign(m, {
 				pwd_hash: undefined,
 				oid_id: undefined,
 			})),
 			eventsOnce: results[2],
+			eventsWeekly: results[3],
 		}));
 	}
 
+	async createEventWeekly(school, group, data) {
+		console.log(data.starttime);
+		return this.query(`
+			INSERT INTO event_weekly (group_, name, day, starttime, endtime)
+			VALUES (?, ?, ?, ?, ?)
+		`, [group, data.name, data.day, stripTimezone(data.starttime), stripTimezone(data.endtime)]);
+	}
+
 	async createEventOnce(school, group, data) {
+		console.log(data.starttime);
 		return this.query(`
 			INSERT INTO event_once (group_, name, start, end)
 			VALUES (?, ?, ?, ?)
-		`, [group, data.name, data.start, data.end]);
+		`, [group, data.name, stripTimezone(data.start), stripTimezone(data.end)]);
 	}
 	async getEventOnce(school, group, id) {
 		return this.query(`
@@ -154,6 +169,7 @@ export default class Database {
 			AND event_once.id = ?
 		`, [group, id]);
 	}
+
 	// eslint-disable-next-line
 	async getEventClashesWith(school, group, id) {
 		// TODO
@@ -161,6 +177,26 @@ export default class Database {
 
 	async getUserEventsBetween(school, user, start, end) {
 		// oh shit
+		const getEventsOnce = this.query(`
+			SELECT event_once.*
+			FROM member, event_once
+			WHERE member.group_ = event_once.group_
+			AND member.user = ?
+
+			AND (
+			(event_once.start >= ? AND event_once.start <= ?)
+			OR
+			(event_once.end >= ? AND event_once.end <= ?)
+			)
+		`, [user, stripTimezone(start), stripTimezone(end), stripTimezone(start), stripTimezone(end)]);
+		const getEventsWeekly = this.query(`
+			SELECT event_weekly.*
+			FROM member, event_weekly
+			WHERE member.group_ = event_weekly.group_
+			AND member.user = ?
+		`, [user]);
+		return Promise.all([getEventsOnce, getEventsWeekly])
+		.then(results => ({ eventsOnce: results[0], eventsWeekly: results[1] }));
 	}
 
 	query(query, values, options = {}) {

@@ -60,6 +60,7 @@ export default class PageGroups extends React.Component {
 						<ListItem
 							key={group.id}
 							caption={group.name}
+							legend="X upcoming events, X members"
 							onClick={() => this.context.router.history.push(`/groups/${group.id}`)}
 						/>,
 					)}

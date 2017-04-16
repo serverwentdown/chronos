@@ -10,9 +10,20 @@ import PageGroup from '../pages/group';
 
 export default class App extends React.Component {
 	getChildContext() {
+		let cb = () => {};
+		let pN = () => {};
+		let pP = () => {};
 		return {
 			user: {},
 			token: null,
+			tooling: {
+				setToolbar: (o) => { cb(o); },
+				setPaginatePrev: (f) => { pP = f; },
+				setPaginateNext: (f) => { pN = f; },
+				paginatePrev: () => { pP(); },
+				paginateNext: () => { pN(); },
+				onChange: (f) => { cb = f; },
+			},
 		};
 	}
 
@@ -35,4 +46,6 @@ App.childContextTypes = {
 	// eslint-disable-next-line react/forbid-prop-types
 	user: React.PropTypes.object.isRequired,
 	token: React.PropTypes.string,
+	// eslint-disable-next-line react/forbid-prop-types
+	tooling: React.PropTypes.object.isRequired,
 };
