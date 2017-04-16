@@ -92,6 +92,9 @@ export default class LayoutMain extends React.Component {
 							to="https://github.com/ambrosechua/chronos"
 						/>
 					</List>
+					<p>
+						Thanks to @Enigmatrix for showing me react-big-calendar
+					</p>
 				</NavDrawer>
 				<Panel>
 					<AppBar

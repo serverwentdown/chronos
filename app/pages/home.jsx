@@ -28,6 +28,8 @@ export default class PageHome extends React.Component {
 		this.handleViewChange = this.handleViewChange.bind(this);
 		this.handleNavigateEvent = this.handleNavigateEvent.bind(this);
 		this.handleSelectEvent = this.handleSelectEvent.bind(this);
+		this.paginateNext = this.paginateNext.bind(this);
+		this.paginatePrev = this.paginatePrev.bind(this);
 
 		this.fetchEvents(context); // TODO: split into three backend calls
 	}
@@ -37,15 +39,15 @@ export default class PageHome extends React.Component {
 			showPagination: false,
 			title: 'This Week\'s Agenda',
 		});
-		this.context.setPaginationNext(this.paginateNext);
-		this.context.setPaginationPrev(this.paginatePrev);
+		this.context.tooling.setPaginateNext(this.paginateNext);
+		this.context.tooling.setPaginatePrev(this.paginatePrev);
 	}
 	componentWillUnmount() {
 		this.context.tooling.setToolbar({
 			showPagination: false,
 		});
-		this.context.setPaginationNext(() => {});
-		this.context.setPaginationPrev(() => {});
+		this.context.tooling.setPaginateNext(() => {});
+		this.context.tooling.setPaginatePrev(() => {});
 	}
 
 	async fetchEvents(context = this.context, start = this.state.start, end = this.state.end) {
